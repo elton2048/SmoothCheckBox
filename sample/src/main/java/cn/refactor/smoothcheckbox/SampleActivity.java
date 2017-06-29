@@ -1,5 +1,6 @@
 package cn.refactor.smoothcheckbox;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,6 +20,13 @@ public class SampleActivity extends AppCompatActivity {
                 Log.d("SmoothCheckBox", String.valueOf(isChecked));
             }
         });
+
+        final SmoothCheckBox scbProgram = (SmoothCheckBox) findViewById(R.id.scb_program);
+        scbProgram.setChecked(true, true);
+//        scbProgram.setColorTick(Color.WHITE);
+//        scbProgram.setColorUnchecked(Color.GRAY);
+//        scbProgram.setColorChecked(Color.BLACK);
+//        scbProgram.setColorFloorUnchecked(Color.BLACK);
     }
 
 }

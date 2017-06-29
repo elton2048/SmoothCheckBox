@@ -39,5 +39,11 @@
         android:layout_height="40dp"
         android:layout_margin="5dp" />
 
+    <cn.refactor.library.SmoothCheckBox
+        android:id="@+id/scb_program"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="5dp" />
+
 
 </LinearLayout>

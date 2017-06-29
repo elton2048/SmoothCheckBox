@@ -1,25 +1,25 @@
-#SmoothCheckBox
+# SmoothCheckBox
 
-### ScreenShot 截图:
+### ScreenShot 截圖:
 
 ![](https://github.com/andyxialm/SmoothCheckBox/blob/master/art/smoothcb.gif?raw=true)
 
-### Attrs 属性
-|attr|format|description|
-|---|:---|:---:|
-|duration|integer|动画持续时间|
-|stroke_width|dimension|未选中时边框宽度|
-|color_tick|color|对勾颜色|
-|color_checked|color|选中时填充颜色|
-|color_unchecked|color|未选中时填充颜色|
-|color_unchecked_stroke|color|未选中时边框颜色|
+### Attrs 屬性
+|Attr|Format|Description|Method|
+|---|:---|:---:|:---:|
+|duration|integer|Duration of animation|setAnimDuration()|
+|stroke_width|dimension|Stroke width when unchecked||
+|color_tick|color|Tick colour|setColorTick()|
+|color_checked|color|Background colour when checked|setColorChecked()|
+|color_unchecked|color|Background colour when unchecked|setColorUnchecked()|
+|color_unchecked_stroke|color|Stroke colour when unchecked||
 
 
 ## Sample Usage 使用
 
 
 ```java
- 
+    // Animation settings require development...
     setChecked(boolean checked);                   // 默认不带动画，若需要动画 调用重载方法
     setChecked(boolean checked, boolean animate);  // 参数: animate 是否显示动画
 ```
@@ -42,6 +42,12 @@
 ```
 
 ## About me
+
+Update By:
+
+Github [here](https://github.com/elton2048)
+
+Original By:
 
 An android developer in Beijing.
 

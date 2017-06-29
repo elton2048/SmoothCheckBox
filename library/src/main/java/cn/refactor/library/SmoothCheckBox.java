@@ -62,6 +62,7 @@ public class SmoothCheckBox extends View implements Checkable {
     private float mScaleVal = 1.0f, mFloorScale = 1.0f;
     private int mWidth, mAnimDuration, mStrokeWidth;
     private int mCheckedColor, mUnCheckedColor, mFloorColor, mFloorUnCheckedColor;
+    private int mFloorCheckedColor;
 
     private boolean mChecked;
     private boolean mTickDrawing;
@@ -98,10 +99,11 @@ public class SmoothCheckBox extends View implements Checkable {
         ta.recycle();
 
         mFloorUnCheckedColor = mFloorColor;
+        mFloorCheckedColor = mFloorUnCheckedColor;
         mTickPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTickPaint.setStyle(Paint.Style.STROKE);
         mTickPaint.setStrokeCap(Paint.Cap.ROUND);
-        mTickPaint.setColor(tickColor);
+        setColorTick(tickColor);
 
         mFloorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mFloorPaint.setStyle(Paint.Style.FILL);
@@ -109,7 +111,7 @@ public class SmoothCheckBox extends View implements Checkable {
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setColor(mCheckedColor);
+        setColorChecked(mCheckedColor);
 
         mTickPath = new Path();
         mCenterPoint = new Point();
@@ -413,6 +415,49 @@ public class SmoothCheckBox extends View implements Checkable {
         int currentB = (int) (startB * (1 - percent) + endB * percent);
         return Color.argb(currentA, currentR, currentG, currentB);
     }
+
+    public int getAnimDuration() { return mAnimDuration; }
+
+    /**
+     * Set the animation duration.
+     * @param time: int
+     */
+    public void setAnimDuration(int time) {
+        mAnimDuration = time;
+    }
+
+    public int getColorTick() { return mTickPaint.getColor(); }
+
+    /**
+     * Set the colour of the tick when it is checked.
+     * @param color: int
+     */
+    public void setColorTick(int color) {
+        mTickPaint.setColor(color);
+    }
+
+    public int getColorChecked() { return mCheckedColor; }
+
+    /**
+     * Set the colour when it is checked.
+     * @param color: int
+     */
+    public void setColorChecked(int color) {
+        mCheckedColor = color;
+        mPaint.setColor(mCheckedColor);
+    }
+
+    public int getColorUnchecked() { return mUnCheckedColor; }
+
+    /**
+     * Set the background of the checkbox when it is unchecked.
+     * @param color: int
+     */
+    public void setColorUnchecked(int color) { mUnCheckedColor = color; }
+
+    private int getColorFloorUnchecked() { return mFloorUnCheckedColor; }
+
+    private void setColorFloorUnchecked(int color) { mFloorUnCheckedColor = color; }
 
     public void setOnCheckedChangeListener(OnCheckedChangeListener l) {
         this.mListener = l;
