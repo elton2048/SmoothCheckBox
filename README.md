@@ -1,8 +1,29 @@
 # SmoothCheckBox
 
+Android library for circular check box with animation.
+
+[![Platform](http://img.shields.io/badge/platform-android-brightgreen.svg?style=flat)](http://developer.android.com/index.html) [![Language](http://img.shields.io/badge/language-java-orange.svg?style=flat)](http://www.oracle.com/technetwork/java/javase/downloads/index.html) [![License](http://img.shields.io/badge/license-apache2.0-lightgrey.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)  
+
 ### ScreenShot 截圖:
 
 ![](https://github.com/andyxialm/SmoothCheckBox/blob/master/art/smoothcb.gif?raw=true)
+
+### Getting started:
+
+Add the project in Gradle.
+
+```
+compile 'com.github.elton2048:SmoothCheckBox:1.0.1'
+```
+
+Don't forget add the following in project build.gradle
+```
+allprojects {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
 
 ### Attrs 屬性
 |Attr|Format|Description|Method|
