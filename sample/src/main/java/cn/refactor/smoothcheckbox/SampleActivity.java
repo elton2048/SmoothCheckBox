@@ -22,11 +22,13 @@ public class SampleActivity extends AppCompatActivity {
         });
 
         final SmoothCheckBox scbProgram = (SmoothCheckBox) findViewById(R.id.scb_program);
-        scbProgram.setChecked(true, true);
-//        scbProgram.setColorTick(Color.WHITE);
-//        scbProgram.setColorUnchecked(Color.GRAY);
+
+//        scbProgram.setColorTick(Color.GREEN);
+        scbProgram.setColorChecked(Color.GREEN);
+        scbProgram.setColorUnchecked(Color.GRAY);
 //        scbProgram.setColorChecked(Color.BLACK);
-//        scbProgram.setColorFloorUnchecked(Color.BLACK);
+        scbProgram.setStrokeColorUnchecked(Color.BLACK);
+        scbProgram.setChecked(true, true);
     }
 
 }

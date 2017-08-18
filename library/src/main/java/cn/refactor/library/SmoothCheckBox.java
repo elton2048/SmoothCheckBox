@@ -16,6 +16,7 @@
 
 package cn.refactor.library;
 
+import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -47,7 +48,7 @@ public class SmoothCheckBox extends View implements Checkable {
     private static final int COLOR_TICK = Color.WHITE;
     private static final int COLOR_UNCHECKED = Color.WHITE;
     private static final int COLOR_CHECKED = Color.parseColor("#FB4846");
-    private static final int COLOR_FLOOR_UNCHECKED = Color.parseColor("#DFDFDF");
+    private static final int COLOR_STROKE_UNCHECKED = Color.parseColor("#DFDFDF");
 
     private static final int DEF_DRAW_SIZE = 25;
     private static final int DEF_ANIM_DURATION = 300;
@@ -61,8 +62,8 @@ public class SmoothCheckBox extends View implements Checkable {
     private float mLeftLineDistance, mRightLineDistance, mDrewDistance;
     private float mScaleVal = 1.0f, mFloorScale = 1.0f;
     private int mWidth, mAnimDuration, mStrokeWidth;
-    private int mCheckedColor, mUnCheckedColor, mFloorColor, mFloorUnCheckedColor;
-    private int mFloorCheckedColor;
+    private int mCheckedColor, mUnCheckedColor, mStrokeColor, mStrokeUnCheckedColor;
+    private int mStrokeCheckedColor;
 
     private boolean mChecked;
     private boolean mTickDrawing;
@@ -92,14 +93,18 @@ public class SmoothCheckBox extends View implements Checkable {
         TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.SmoothCheckBox);
         int tickColor = ta.getColor(R.styleable.SmoothCheckBox_color_tick, COLOR_TICK);
         mAnimDuration = ta.getInt(R.styleable.SmoothCheckBox_duration, DEF_ANIM_DURATION);
-        mFloorColor = ta.getColor(R.styleable.SmoothCheckBox_color_unchecked_stroke, COLOR_FLOOR_UNCHECKED);
         mCheckedColor = ta.getColor(R.styleable.SmoothCheckBox_color_checked, COLOR_CHECKED);
         mUnCheckedColor = ta.getColor(R.styleable.SmoothCheckBox_color_unchecked, COLOR_UNCHECKED);
+
+        mStrokeColor = ta.getColor(R.styleable.SmoothCheckBox_color_unchecked_stroke, COLOR_STROKE_UNCHECKED);
+        mStrokeUnCheckedColor = ta.getColor(R.styleable.SmoothCheckBox_color_unchecked_stroke, COLOR_STROKE_UNCHECKED);
         mStrokeWidth = ta.getDimensionPixelSize(R.styleable.SmoothCheckBox_stroke_width, CompatUtils.dp2px(getContext(), 0));
         ta.recycle();
 
-        mFloorUnCheckedColor = mFloorColor;
-        mFloorCheckedColor = mFloorUnCheckedColor;
+//        mStrokeUnCheckedColor = mStrokeColor;
+//        setStrokeColorUnchecked(Color.BLACK);
+//        mStrokeColor = mStrokeUnCheckedColor;
+        mStrokeCheckedColor = mStrokeUnCheckedColor;
         mTickPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTickPaint.setStyle(Paint.Style.STROKE);
         mTickPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -107,7 +112,7 @@ public class SmoothCheckBox extends View implements Checkable {
 
         mFloorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mFloorPaint.setStyle(Paint.Style.FILL);
-        mFloorPaint.setColor(mFloorColor);
+        mFloorPaint.setColor(mStrokeColor);
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
@@ -202,8 +207,7 @@ public class SmoothCheckBox extends View implements Checkable {
     private void reset() {
         mTickDrawing = true;
         mFloorScale = 1.0f;
-        mScaleVal = isChecked() ? 0f : 1.0f;
-        mFloorColor = isChecked() ? mCheckedColor : mFloorUnCheckedColor;
+        mStrokeColor = isChecked() ? mCheckedColor : mStrokeUnCheckedColor;
         mDrewDistance = isChecked() ? (mLeftLineDistance + mRightLineDistance) : 0;
     }
 
@@ -268,7 +272,7 @@ public class SmoothCheckBox extends View implements Checkable {
     }
 
     private void drawBorder(Canvas canvas) {
-        mFloorPaint.setColor(mFloorColor);
+        mFloorPaint.setColor(mStrokeColor);
         int radius = mCenterPoint.x;
         canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, radius * mFloorScale, mFloorPaint);
     }
@@ -333,6 +337,37 @@ public class SmoothCheckBox extends View implements Checkable {
     }
 
     private void startCheckedAnimation() {
+        // Set the animation of the colour for the stroke.
+        ValueAnimator colorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), mStrokeUnCheckedColor, mCheckedColor);
+        colorAnimator.setDuration(mAnimDuration / 3 * 2);
+        colorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                mStrokeColor = (int) valueAnimator.getAnimatedValue();
+                postInvalidate();
+            }
+        });
+        colorAnimator.start();
+
+        // Set the animation of the stroke
+        ValueAnimator floorAnimator = ValueAnimator.ofFloat(1.0f, 0.8f, 1.0f);
+        floorAnimator.setDuration(mAnimDuration);
+        floorAnimator.setInterpolator(new LinearInterpolator());
+        floorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mFloorScale = (float) animation.getAnimatedValue();
+                // Setting 0f to control to dismiss the stroke.
+                mScaleVal = 0f;
+                postInvalidate();
+            }
+        });
+        floorAnimator.start();
+
+        drawTickDelayed();
+    }
+
+    private void startCheckedAnimationOri() {
         ValueAnimator animator = ValueAnimator.ofFloat(1.0f, 0f);
         animator.setDuration(mAnimDuration / 3 * 2);
         animator.setInterpolator(new LinearInterpolator());
@@ -340,7 +375,7 @@ public class SmoothCheckBox extends View implements Checkable {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 mScaleVal = (float) animation.getAnimatedValue();
-                mFloorColor = getGradientColor(mUnCheckedColor, mCheckedColor, 1 - mScaleVal);
+                mStrokeColor = getGradientColor(mUnCheckedColor, mCheckedColor, 1 - mScaleVal);
                 postInvalidate();
             }
         });
@@ -363,17 +398,31 @@ public class SmoothCheckBox extends View implements Checkable {
 
     private void startUnCheckedAnimation() {
         ValueAnimator animator = ValueAnimator.ofFloat(0f, 1.0f);
-        animator.setDuration(mAnimDuration);
+        animator.setDuration(mAnimDuration * 10);
         animator.setInterpolator(new LinearInterpolator());
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 mScaleVal = (float) animation.getAnimatedValue();
-                mFloorColor = getGradientColor(mCheckedColor, mFloorUnCheckedColor, mScaleVal);
+                mStrokeColor = getGradientColor(mCheckedColor, mStrokeUnCheckedColor, mScaleVal);
                 postInvalidate();
             }
         });
         animator.start();
+
+/*
+        // Set the animation of the colour for the stroke.
+        ValueAnimator colorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), mCheckedColor, mStrokeUnCheckedColor);
+        colorAnimator.setDuration(mAnimDuration);
+        colorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                mStrokeColor = (int) valueAnimator.getAnimatedValue();
+                postInvalidate();
+            }
+        });
+        colorAnimator.start();
+*/
 
         ValueAnimator floorAnimator = ValueAnimator.ofFloat(1.0f, 0.8f, 1.0f);
         floorAnimator.setDuration(mAnimDuration);
@@ -381,6 +430,7 @@ public class SmoothCheckBox extends View implements Checkable {
         floorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
+//                mScaleVal = 1.0f;
                 mFloorScale = (float) animation.getAnimatedValue();
                 postInvalidate();
             }
@@ -455,9 +505,11 @@ public class SmoothCheckBox extends View implements Checkable {
      */
     public void setColorUnchecked(int color) { mUnCheckedColor = color; }
 
-    private int getColorFloorUnchecked() { return mFloorUnCheckedColor; }
+    private int getColorFloorUnchecked() { return mStrokeUnCheckedColor; }
 
-    private void setColorFloorUnchecked(int color) { mFloorUnCheckedColor = color; }
+    public void setStrokeColorUnchecked(int color) { mStrokeUnCheckedColor = color; }
+
+    public int getStrokeWidth() { return mStrokeWidth; }
 
     public void setOnCheckedChangeListener(OnCheckedChangeListener l) {
         this.mListener = l;
